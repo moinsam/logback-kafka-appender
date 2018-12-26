@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
  */
 public class HostNameKeyingStrategy extends ContextAwareBase implements KeyingStrategy<Object>, LifeCycle {
 
+    private String hostname = null;
     private byte[] hostnameHash = null;
     private boolean errorWasShown = false;
 
@@ -28,13 +29,14 @@ public class HostNameKeyingStrategy extends ContextAwareBase implements KeyingSt
                 errorWasShown = true;
             }
         } else {
+            this.hostname = hostname;
             hostnameHash = ByteBuffer.allocate(4).putInt(hostname.hashCode()).array();
         }
     }
 
     @Override
-    public byte[] createKey(Object e) {
-        return hostnameHash;
+    public String createKey(Object e) {
+        return hostname;
     }
 
     @Override

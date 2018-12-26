@@ -49,16 +49,16 @@ public class LogbackIntegrationIT {
             logger.info("message"+(i));
         }
 
-        final KafkaConsumer<byte[], byte[]> client = kafka.createClient();
+        final KafkaConsumer<String, byte[]> client = kafka.createClient();
         client.assign(Collections.singletonList(new TopicPartition("logs", 0)));
         client.seekToBeginning(Collections.singletonList(new TopicPartition("logs", 0)));
 
 
         int no = 0;
 
-        ConsumerRecords<byte[],byte[]> poll = client.poll(1000);
+        ConsumerRecords<String, byte[]> poll = client.poll(1000);
         while(!poll.isEmpty()) {
-            for (ConsumerRecord<byte[], byte[]> consumerRecord : poll) {
+            for (ConsumerRecord<String, byte[]> consumerRecord : poll) {
                 final String messageFromKafka = new String(consumerRecord.value(), UTF8);
                 assertThat(messageFromKafka, Matchers.equalTo("message"+no));
                 ++no;

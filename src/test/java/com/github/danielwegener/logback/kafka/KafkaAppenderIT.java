@@ -11,7 +11,7 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.status.StatusListener;
 import com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy;
-import com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy;
+import com.github.danielwegener.logback.kafka.keying.ThreadNameKeyingStrategy;
 import com.github.danielwegener.logback.kafka.util.TestKafka;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -34,9 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class KafkaAppenderIT {
@@ -56,6 +54,7 @@ public class KafkaAppenderIT {
         kafka = TestKafka.createTestKafka(1,1,1);
 
         loggerContext = new LoggerContext();
+        loggerContext.setName("context");
         loggerContext.putProperty("brokers.list", kafka.getBrokerList());
         loggerContext.getStatusManager().add(new StatusListener() {
             @Override
@@ -84,7 +83,7 @@ public class KafkaAppenderIT {
         unit.setTopic("logs");
         unit.setName("TestKafkaAppender");
         unit.setContext(loggerContext);
-        unit.setKeyingStrategy(new NoKeyKeyingStrategy());
+        unit.setKeyingStrategy(new ThreadNameKeyingStrategy());
         unit.setDeliveryStrategy(new AsynchronousDeliveryStrategy());
         unit.addAppender(fallbackAppender);
         unit.addProducerConfigValue(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBrokerList());
@@ -147,16 +146,16 @@ public class KafkaAppenderIT {
         unit.stop();
         assertFalse("appender is stopped", unit.isStarted());
 
-        final KafkaConsumer<byte[], byte[]> javaConsumerConnector = kafka.createClient();
+        final KafkaConsumer<String, byte[]> javaConsumerConnector = kafka.createClient();
         javaConsumerConnector.assign(Collections.singletonList(new TopicPartition("logs", 0)));
         javaConsumerConnector.seekToBeginning(Collections.singletonList(new TopicPartition("logs", 0)));
         final long position = javaConsumerConnector.position(new TopicPartition("logs", 0));
         assertEquals(0, position);
 
-        ConsumerRecords<byte[], byte[]> poll = javaConsumerConnector.poll(10000);
+        ConsumerRecords<String, byte[]> poll = javaConsumerConnector.poll(10000);
         int readMessages = 0;
         while (!poll.isEmpty()) {
-            for (ConsumerRecord<byte[], byte[]> aPoll : poll) {
+            for (ConsumerRecord<String, byte[]> aPoll : poll) {
                 byte[] msg = aPoll.value();
                 byte[] msgPrefix = new byte[32];
                 System.arraycopy(msg, 0, msgPrefix, 0, 32);

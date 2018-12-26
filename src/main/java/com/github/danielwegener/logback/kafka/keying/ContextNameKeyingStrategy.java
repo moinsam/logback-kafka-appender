@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
  */
 public class ContextNameKeyingStrategy extends ContextAwareBase implements KeyingStrategy<ILoggingEvent> {
 
+    private String contextName = null;
     private byte[] contextNameHash = null;
 
     @Override
@@ -24,12 +25,13 @@ public class ContextNameKeyingStrategy extends ContextAwareBase implements Keyin
         if (contextName == null) {
             addError("Context name could not be found in context. ContextNameKeyingStrategy will not work.");
         } else {
+            this.contextName = contextName;
             contextNameHash = ByteBuffer.allocate(4).putInt(contextName.hashCode()).array();
         }
     }
 
     @Override
-    public byte[] createKey(ILoggingEvent e) {
-        return contextNameHash;
+    public String createKey(ILoggingEvent e) {
+        return contextName;
     }
 }

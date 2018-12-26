@@ -1,20 +1,5 @@
 package com.github.danielwegener.logback.kafka;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -34,12 +19,20 @@ import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Field;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
+
 public class KafkaAppenderTest {
 
     private final KafkaAppender<ILoggingEvent> unit = new KafkaAppender<>();
     private final LoggerContext ctx = new LoggerContext();
     @SuppressWarnings("unchecked")
     private final Encoder<ILoggingEvent> encoder =  mock(Encoder.class);
+    @SuppressWarnings("unchecked")
     private final KeyingStrategy<ILoggingEvent> keyingStrategy =  mock(KeyingStrategy.class);
     @SuppressWarnings("unchecked")
     private final DeliveryStrategy deliveryStrategy =  mock(DeliveryStrategy.class);

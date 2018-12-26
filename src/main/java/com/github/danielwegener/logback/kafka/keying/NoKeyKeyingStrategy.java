@@ -8,7 +8,7 @@ package com.github.danielwegener.logback.kafka.keying;
 public class NoKeyKeyingStrategy implements KeyingStrategy<Object> {
 
     @Override
-    public byte[] createKey(Object e) {
+    public String createKey(Object e) {
         return null;
     }
 }

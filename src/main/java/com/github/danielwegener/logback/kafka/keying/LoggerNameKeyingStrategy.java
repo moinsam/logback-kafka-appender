@@ -13,14 +13,14 @@ import java.nio.ByteBuffer;
 public class LoggerNameKeyingStrategy implements KeyingStrategy<ILoggingEvent> {
 
     @Override
-    public byte[] createKey(ILoggingEvent e) {
+    public String createKey(ILoggingEvent e) {
         final String loggerName;
         if (e.getLoggerName() == null) {
             loggerName = "";
         } else {
             loggerName = e.getLoggerName();
         }
-        return ByteBuffer.allocate(4).putInt(loggerName.hashCode()).array();
+        return loggerName;
     }
 
 }

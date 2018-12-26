@@ -15,6 +15,6 @@ public interface KeyingStrategy<E> {
      * @param e the logging event
      * @return a key
      */
-    <T> T createKey(E e);
+    String createKey(E e);
 
 }

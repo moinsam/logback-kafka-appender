@@ -3,6 +3,7 @@ package com.github.danielwegener.logback.kafka.util;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,16 +17,16 @@ public class TestKafka {
     private final EmbeddedZookeeper zookeeper;
     private final EmbeddedKafkaCluster kafkaCluster;
 
-    public KafkaConsumer<byte[], byte[]> createClient() {
+    public KafkaConsumer<String, byte[]> createClient() {
         return createClient(new HashMap<String, Object>());
     }
 
-    public KafkaConsumer<byte[], byte[]> createClient(Map<String, Object> consumerProperties) {
+    public KafkaConsumer<String, byte[]> createClient(Map<String, Object> consumerProperties) {
         consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBrokerList());
         //consumerProperties.put("group.id", "simple-consumer-" + new Random().nextInt());
         consumerProperties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         consumerProperties.put("auto.offset.reset","earliest");
-        consumerProperties.put("key.deserializer", ByteArrayDeserializer.class.getName());
+        consumerProperties.put("key.deserializer", StringDeserializer.class.getName());
         consumerProperties.put("value.deserializer", ByteArrayDeserializer.class.getName());
         return new KafkaConsumer<>(consumerProperties);
     }

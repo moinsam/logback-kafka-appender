@@ -21,7 +21,7 @@ public class ThreadNameKeyingStrategyTest {
     public void shouldPartitionByEventThreadName() {
         final String threadName = Thread.currentThread().getName();
         final ILoggingEvent evt = new LoggingEvent("fqcn", ctx.getLogger("logger"), Level.ALL, "msg", null, new Object[0]);
-        Assert.assertThat(unit.createKey(evt), Matchers.equalTo(ByteBuffer.allocate(4).putInt(threadName.hashCode()).array()));
+        Assert.assertThat(unit.createKey(evt), Matchers.equalTo(threadName));
     }
 
 

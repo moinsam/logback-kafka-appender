@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class KafkaAppender<E> extends KafkaAppenderConfig<E> {
 
     public KafkaAppender() {
         // setting these as config values sidesteps an unnecessary warning (minor bug in KafkaProducer)
-        addProducerConfigValue(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
+        addProducerConfigValue(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         addProducerConfigValue(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
     }
 
@@ -117,13 +118,12 @@ public class KafkaAppender<E> extends KafkaAppenderConfig<E> {
     @Override
     protected void append(E e) {
         final byte[] payload = encoder.encode(e);
-        final byte[] key = keyingStrategy.createKey(e);
-
+        final String key = keyingStrategy.createKey(e);
         final Long timestamp = isAppendTimestamp() ? getTimestamp(e) : null;
 
-        final ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic, partition, timestamp, key, payload);
+        final ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, partition, timestamp, key, payload);
 
-        final Producer<byte[], byte[]> producer = lazyProducer.get();
+        final Producer<String, byte[]> producer = lazyProducer.get();
         if (producer != null) {
             deliveryStrategy.send(lazyProducer.get(), record, e, failedDeliveryCallback);
         } else {
@@ -139,7 +139,7 @@ public class KafkaAppender<E> extends KafkaAppenderConfig<E> {
         }
     }
 
-    protected Producer<byte[], byte[]> createProducer() {
+    protected Producer<String, byte[]> createProducer() {
         return new KafkaProducer<>(new HashMap<>(producerConfig));
     }
 
@@ -163,10 +163,10 @@ public class KafkaAppender<E> extends KafkaAppenderConfig<E> {
      */
     private class LazyProducer {
 
-        private volatile Producer<byte[], byte[]> producer;
+        private volatile Producer<String, byte[]> producer;
 
-        public Producer<byte[], byte[]> get() {
-            Producer<byte[], byte[]> result = this.producer;
+        public Producer<String, byte[]> get() {
+            Producer<String, byte[]> result = this.producer;
             if (result == null) {
                 synchronized(this) {
                     result = this.producer;
@@ -179,8 +179,8 @@ public class KafkaAppender<E> extends KafkaAppenderConfig<E> {
             return result;
         }
 
-        protected Producer<byte[], byte[]> initialize() {
-            Producer<byte[], byte[]> producer = null;
+        protected Producer<String, byte[]> initialize() {
+            Producer<String, byte[]> producer = null;
             try {
                 producer = createProducer();
             } catch (Exception e) {

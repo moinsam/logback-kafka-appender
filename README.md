@@ -210,21 +210,6 @@ import com.github.danielwegener.logback.kafka.keying.KeyingStrategy;
 /* This is a valid example but does not really make much sense */
 public class LevelKeyingStrategy implements KeyingStrategy<ILoggingEvent> {
     @Override
-    public byte[] createKey(ILoggingEvent e) {
-        return ByteBuffer.allocate(4).putInt(e.getLevel()).array();
-    }
-}
-```
-
-You can create key with various type other then byte array,
-
-```java
-package foo;
-import com.github.danielwegener.logback.kafka.keying.KeyingStrategy;
-
-/* This is a valid example but does not really make much sense */
-public class LevelKeyingStrategy implements KeyingStrategy<ILoggingEvent> {
-    @Override
     public String createKey(ILoggingEvent e) {
         return e.getLevel();
     }
